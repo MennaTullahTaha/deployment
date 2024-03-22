@@ -5,6 +5,10 @@ variable "gcp_region" {
 
 }
 
+variable "working_dir" {
+
+}
+
 variable "gke_zone" {
   type        = string
   description = "cluster zone"
