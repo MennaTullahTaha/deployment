@@ -1,33 +1,31 @@
-resource "kubernetes_namespace" "express" {
+resource "kubernetes_namespace" "nodexpressv1" {
   metadata {
-    name = "express-namespace"
+    name = "nodexpressv1-namespace"
   }
 }
 
-resource "kubernetes_deployment" "api_skaffold" {
-  depends_on = [null_resource.docker-registry]
-  
+resource "kubernetes_deployment" "api_skaffold" {  
   metadata {
-    name      = var.application_name
-    namespace = kubernetes_namespace.kn.metadata.0.name
+    name      = "test"
+    namespace = kubernetes_namespace.nodexpressv1.metadata.0.name
   }
   spec {
     replicas = 1
     selector {
       match_labels = {
-        app = var.application_name
+        app = "test"
       }
     }
     template {
       metadata {
         labels = {
-          app = var.application_name
+          app = "test"
         }
       }
       spec {
         container {
-          image = "eu.gcr.io/${var.application_name}/api-skaffold:v1"
-          name  = var.application_name
+          image = "europe-west3-docker.pkg.dev/deploying-with-terraform/express/api-skaffold:v1"
+          name  = "test"
           port {
             container_port = 3000
           }
@@ -39,8 +37,8 @@ resource "kubernetes_deployment" "api_skaffold" {
 
 resource "kubernetes_service" "api_skaffold_service" {
   metadata {
-    name      = var.application_name
-    namespace = kubernetes_namespace.kn.metadata.0.name
+    name      = "test"
+    namespace = "kubernetes_namespace.nodexpressv1.metadata.0.name"
   }
   spec {
     selector = {

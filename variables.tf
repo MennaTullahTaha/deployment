@@ -1,12 +1,13 @@
 variable "gcp_credentials" {
 }
 
-variable "gcp_region" {
+variable "application_name" {
 
 }
 
-variable "application_name" {
-
+variable "gcp_region" {
+  default     = "europe-west3-b"
+  description = "Default region of the cluster"
 }
 
 variable "gke_cluster_name" {

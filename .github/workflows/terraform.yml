@@ -4,18 +4,24 @@ on:
   # Trigger a specific workflow run on demand without need for a code push/pull request
   workflow_dispatch:
     inputs:
-      gkeRegion:
-        description: "GKE region for the cluster"
-        required: true
-      applicationName:
-        description: "Name of the project to deploy"
+      repoName:
+        description: "Name of the repository to deploy"
         required: true
       githubRepo:
         description: "Link of public github repo to deploy"
         required: true
+      branchName:
+        description: "Name of the branch either main or master"
+        required: true
+      applicationName:
+        description: "Name of your application without spaces or dashes"
+        required: true
 
 jobs:
   apply_cluster:
+    permissions:
+      contents: "read"
+      id-token: "write"
     runs-on: ubuntu-latest
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
@@ -26,35 +32,47 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: auth google cloud
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+
       # Checkout the student's repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v3
         with:
           repository: ${{ github.event.inputs.githubRepo }}
-          path: "./${{ github.event.inputs.githubRepo }}"
+          ref: ${{ github.event.inputs.branchName }}
+          path: "./${{ github.event.inputs.repoName }}"
+
+      # - name: Login to Artifact Registry
+      #   uses: docker/login-action@v1
+      #   with:
+      #     registry: europe-west3-docker.pkg.dev
+      #     username: oauth2accesstoken
+      #     password: ${{ steps.auth.outputs.access_token }}
 
       - name: Copy docker file into the repo
-        run: |
-          CP dockerfile ./${{ github.event.inputs.githubRepo }}
+        run: cp dockerfile ./${{ github.event.inputs.repoName }}
 
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: deploying-with-terraform
 
-      - name: Install docker-credential-gcr
-        run: gcloud components install docker-credential-gcr
+      - name: Setup Authentication to Docker repository
+        run: gcloud auth configure-docker europe-west3-docker.pkg.dev
 
-      - name: Configure docker-credential-gcr
-        run: docker-credential-gcr configure-docker
+      - name: Open the application folder
+        run: cd ./${{ github.event.inputs.repoName }}
 
       - name: Build Docker image
         run: |
-          docker build -t eu.gcr.io/${{ github.event.inputs.applicationName }}/api-skaffold:v1 ./${{ github.event.inputs.githubRepo }}
+          docker build -t europe-west3-docker.pkg.dev/deploying-with-terraform/express/api-skaffold:v1 ./${{ github.event.inputs.repoName }}
 
       - name: Push Docker image to Google Container Registry
         run: |
-          docker push eu.gcr.io/${{ github.event.inputs.applicationName }}/api-skaffold:v1
+          docker push europe-west3-docker.pkg.dev/deploying-with-terraform/express/api-skaffold:v1
 
       # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
@@ -72,11 +90,11 @@ jobs:
 
       # Generates an execution plan for Terraform
       - name: Terraform Plan
-        run: terraform plan -var 'gcp_credentials=${{ secrets.GCP_SA_KEY }}' -var 'gcp_region=${{ github.event.inputs.gkeRegion }}' -var 'application_name=${{github.event.input.applicationName}}'
+        run: terraform plan -var 'gcp_credentials=${{ secrets.GCP_SA_KEY }}' -var 'application_name=${{github.event.input.applicationName}}'
 
       # Apply terraform
       - name: Terraform Apply
-        run: terraform plan -var 'gcp_credentials=${{ secrets.GCP_SA_KEY }}' -var 'gcp_region=${{ github.event.inputs.gkeRegion }}' -var 'application_name=${{github.event.input.applicationName}}' -auto-approve
+        run: TF_LOG=debug terraform apply -var 'gcp_credentials=${{ secrets.GCP_SA_KEY }}' -var 'application_name=${{github.event.input.applicationName}}' -auto-approve
 
       - name: Terraform output
         run: terraform output
