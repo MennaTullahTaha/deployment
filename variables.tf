@@ -5,24 +5,22 @@ variable "gcp_region" {
 
 }
 
-variable "working_dir" {
+variable "application_name" {
 
 }
 
 variable "gke_cluster_name" {
+  default     = "experimental-cluster"
+  description = "Name of the cluster to deploy to"
 }
 
-variable "gke_zone" {
-  type        = string
-  description = "cluster zone"
-}
 
 variable "gcp_project_id" {
-  type        = string
-  description = "GCP project id."
+  default     = "deploying-with-terraform"
+  description = "id of project created on google cloud"
 }
 
 variable "gke_service_account_name" {
-  type        = string
+  default     = "terraform-gke@deploying-with-terraform.iam.gserviceaccount.com"
   description = "Service account name"
 }

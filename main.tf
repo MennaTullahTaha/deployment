@@ -8,26 +8,26 @@ resource "kubernetes_deployment" "api_skaffold" {
   depends_on = [null_resource.docker-registry]
   
   metadata {
-    name      = var.gcp_project_id
+    name      = var.application_name
     namespace = kubernetes_namespace.kn.metadata.0.name
   }
   spec {
     replicas = 1
     selector {
       match_labels = {
-        app = var.gcp_project_id
+        app = var.application_name
       }
     }
     template {
       metadata {
         labels = {
-          app = var.gcp_project_id
+          app = var.application_name
         }
       }
       spec {
         container {
-          image = "eu.gcr.io/${var.gcp_project_id}/api-skaffold:v1"
-          name  = var.gcp_project_id
+          image = "eu.gcr.io/${var.application_name}/api-skaffold:v1"
+          name  = var.application_name
           port {
             container_port = 3000
           }
@@ -39,7 +39,7 @@ resource "kubernetes_deployment" "api_skaffold" {
 
 resource "kubernetes_service" "api_skaffold_service" {
   metadata {
-    name      = var.gcp_project_id
+    name      = var.application_name
     namespace = kubernetes_namespace.kn.metadata.0.name
   }
   spec {
