@@ -9,6 +9,9 @@ variable "working_dir" {
 
 }
 
+variable "gke_cluster_name" {
+}
+
 variable "gke_zone" {
   type        = string
   description = "cluster zone"
