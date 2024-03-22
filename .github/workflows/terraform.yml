@@ -72,11 +72,11 @@ jobs:
 
       # Generates an execution plan for Terraform
       - name: Terraform Plan
-        run: terraform plan -var 'gcp_credentials=${{ secrets.GCP_SA_KEY }}' -var 'gcp_region=${{ github.event.inputs.gkeRegion }}' -var 'application_name=${{github.event.input.applicationName}}'
+        run: terraform plan -var 'gcp_credentials=${{ secrets.GCP_SA_KEY }}' -var 'application_name=${{github.event.input.applicationName}}'
 
       # Apply terraform
       - name: Terraform Apply
-        run: terraform plan -var 'gcp_credentials=${{ secrets.GCP_SA_KEY }}' -var 'gcp_region=${{ github.event.inputs.gkeRegion }}' -var 'application_name=${{github.event.input.applicationName}}' -auto-approve
+        run: terraform plan -var 'gcp_credentials=${{ secrets.GCP_SA_KEY }}' -var 'application_name=${{github.event.input.applicationName}}' -auto-approve
 
       - name: Terraform output
         run: terraform output
