@@ -1,13 +1,13 @@
-resource "kubernetes_namespace" "nodexpressv1" {
+resource "kubernetes_namespace" "nodexpressv2" {
   metadata {
-    name = "nodexpressv1-namespace"
+    name = "nodexpressv2-namespace"
   }
 }
 
-resource "kubernetes_deployment" "api_skaffold" {  
+resource "kubernetes_deployment" "api-skaffold" {  
   metadata {
     name      = "test"
-    namespace = kubernetes_namespace.nodexpressv1.metadata.0.name
+    namespace = kubernetes_namespace.nodexpressv2.metadata.0.name
   }
   spec {
     replicas = 1
@@ -35,14 +35,14 @@ resource "kubernetes_deployment" "api_skaffold" {
   }
 }
 
-resource "kubernetes_service" "api_skaffold_service" {
+resource "kubernetes_service" "api-skaffold_service" {
   metadata {
     name      = "test"
-    namespace = "kubernetes_namespace.nodexpressv1.metadata.0.name"
+    namespace = "kubernetes_namespace.nodexpressv2.metadata.0.name"
   }
   spec {
     selector = {
-      app = kubernetes_deployment.api_skaffold.spec.0.template.0.metadata.0.labels.app
+      app = kubernetes_deployment.api-skaffold.spec.0.template.0.metadata.0.labels.app
     }
     type = "LoadBalancer"
     port {
