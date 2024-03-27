@@ -11,7 +11,7 @@ variable "gcp_region" {
 }
 
 variable "gke_cluster_name" {
-  default     = "experimental-cluster"
+  default     = "expiremental-cluster"
   description = "Name of the cluster to deploy to"
 }
 

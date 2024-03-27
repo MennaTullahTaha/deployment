@@ -1,13 +1,19 @@
-resource "kubernetes_namespace" "nodexpressv3" {
+resource "google_project_iam_member" "artifact_role" {
+  role = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${var.gke_service_account_name}"
+  project = var.gcp_project_id
+}
+
+resource "kubernetes_namespace" "nodejs" {
   metadata {
-    name = "nodexpressv3-namespace"
+    name = "nodejs-namespace"
   }
 }
 
 resource "kubernetes_deployment" "api-skaffold" {  
   metadata {
     name      = "test"
-    namespace = kubernetes_namespace.nodexpressv3.metadata.0.name
+    namespace = "nodejs-namespace"
   }
   spec {
     replicas = 1
@@ -38,7 +44,7 @@ resource "kubernetes_deployment" "api-skaffold" {
 resource "kubernetes_service" "api-skaffold_service" {
   metadata {
     name      = "test"
-    namespace = "kubernetes_namespace.nodexpressv3.metadata.0.name"
+    namespace = "nodejs-namespace"
   }
   spec {
     selector = {
@@ -50,8 +56,4 @@ resource "kubernetes_service" "api-skaffold_service" {
       target_port = 3000
     }
   }
-   wait_for_completion = true
-   timeouts {
-   create = "40s"
- }
 }

@@ -94,7 +94,7 @@ jobs:
 
       # Apply terraform
       - name: Terraform Apply
-        run: TF_LOG=debug terraform apply -var 'gcp_credentials=${{ secrets.GCP_SA_KEY }}' -var 'application_name=${{github.event.input.applicationName}}' -auto-approve
+        run: terraform apply -var 'gcp_credentials=${{ secrets.GCP_SA_KEY }}' -var 'application_name=${{github.event.input.applicationName}}' -auto-approve
 
       - name: Terraform output
         run: terraform output
