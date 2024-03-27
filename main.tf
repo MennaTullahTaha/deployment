@@ -1,13 +1,13 @@
-resource "kubernetes_namespace" "nodexpressv2" {
+resource "kubernetes_namespace" "nodexpressv3" {
   metadata {
-    name = "nodexpressv2-namespace"
+    name = "nodexpressv3-namespace"
   }
 }
 
 resource "kubernetes_deployment" "api-skaffold" {  
   metadata {
     name      = "test"
-    namespace = kubernetes_namespace.nodexpressv2.metadata.0.name
+    namespace = kubernetes_namespace.nodexpressv3.metadata.0.name
   }
   spec {
     replicas = 1
@@ -38,7 +38,7 @@ resource "kubernetes_deployment" "api-skaffold" {
 resource "kubernetes_service" "api-skaffold_service" {
   metadata {
     name      = "test"
-    namespace = "kubernetes_namespace.nodexpressv2.metadata.0.name"
+    namespace = "kubernetes_namespace.nodexpressv3.metadata.0.name"
   }
   spec {
     selector = {
@@ -50,4 +50,8 @@ resource "kubernetes_service" "api-skaffold_service" {
       target_port = 3000
     }
   }
+   wait_for_completion = true
+   timeouts {
+   create = "40s"
+ }
 }
